@@ -1,0 +1,10 @@
+{
+  "name": "testovoe-bft-group",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "cssnano": "^7.0.6",
+    "postcss": "^8.4.47"
+  }
+}
