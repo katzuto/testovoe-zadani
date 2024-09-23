@@ -1,27 +1,22 @@
-console.log("rendered")
-const  updateIds = (selectedMap) => {
+const selectedIds = [];
+
+const updateIds = () => {
     const selectedIdsList = document.getElementById('selectedIds');
     selectedIdsList.innerHTML = '';
 
-    selectedMap.forEach((value, key) => {
-        if (value) {
-            const listItem = document.createElement('li');
-            listItem.textContent = key;
-            selectedIdsList.appendChild(listItem);
-        }
+    selectedIds.forEach((id) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = id;
+        selectedIdsList.appendChild(listItem);
     });
 
-    updateUrl(selectedMap);
+    updateUrl(selectedIds);
 }
 
-const updateUrl = (selectedMap) => {
-    const selectedCheckboxes = Array.from(selectedMap)
-        .filter(([key, value]) => value)
-        .map(([key]) => key);
-
+const updateUrl = (selectedIds) => {
     const urlParams = new URLSearchParams();
-    if (selectedCheckboxes.length > 0) {
-        urlParams.set('selected', selectedCheckboxes.join(','));
+    if (selectedIds.length > 0) {
+        urlParams.set('selected', selectedIds.join(','));
     } else {
         urlParams.delete('selected');
     }
@@ -30,38 +25,39 @@ const updateUrl = (selectedMap) => {
     history.replaceState(null, '', newUrl);
 }
 
-
-const getCheckboxes = (checkboxes, selectedMap) => {
+const getCheckboxes = (checkboxes) => {
     const urlParams = new URLSearchParams(window.location.search);
     const selected = urlParams.get('selected');
     if (selected) {
-        const selectedIds = selected.split(',');
+        const selectedIdsFromUrl = selected.split(',');
         checkboxes.forEach((checkbox) => {
-            if (selectedIds.includes(checkbox.id)) {
+            if (selectedIdsFromUrl.includes(checkbox.id)) {
                 checkbox.checked = true;
-                selectedMap.set(checkbox.id, true);
+                selectedIds.push(checkbox.id);
             } else {
                 checkbox.checked = false;
-                selectedMap.set(checkbox.id, false);
             }
         });
     }
 }
 
-
 document.addEventListener('DOMContentLoaded', () => {
     const checkboxes = document.querySelectorAll('#checkboxes input[type="checkbox"]');
-    const selectedMap = new Map();
 
     checkboxes.forEach((checkbox) => {
-        selectedMap.set(checkbox.id, checkbox.checked);
-
         checkbox.addEventListener('change', () => {
-            selectedMap.set(checkbox.id, checkbox.checked);
-            updateIds(selectedMap);
+            if (checkbox.checked) {
+                selectedIds.push(checkbox.id);
+            } else {
+                const index = selectedIds.indexOf(checkbox.id);
+                if (index > -1) {
+                    selectedIds.splice(index, 1);
+                }
+            }
+            updateIds();
         });
     });
 
-    getCheckboxes(checkboxes, selectedMap);
-    updateIds(selectedMap);
+    getCheckboxes(checkboxes);
+    updateIds();
 });
